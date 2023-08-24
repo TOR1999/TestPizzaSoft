@@ -12,7 +12,7 @@ export const CardsUsers = ({ handleChange, handleDelete, dataUsers }) => {
       {dataUsers.map((user) => {
         return (
           <CardUser
-            key={user.id}
+            key={user.key}
             user={user}
             onClick={handleChange(user)}
             onDelete={handleDelete(user)}

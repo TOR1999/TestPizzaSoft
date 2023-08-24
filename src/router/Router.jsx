@@ -1,17 +1,20 @@
-import { React, useEffect } from "react";
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { PageRoutes } from "./Constants";
 import { MainPage } from "../pages/MainPage/MainPage";
-import { UsersStore } from "../store/Users/UsersStore";
 import { SystemStore } from "../store/System/SystemStore";
 import { EditingPage } from "../pages/EditingPage/EditingPage";
 
+const onResize = () => {
+  SystemStore.events.changeWidthWindow(window.screen.width);
+};
+
 export const Router = () => {
   useEffect(() => {
-    window.addEventListener("resize", (e) => {
-      console.log(e.currentTarget.screen.width);
-      SystemStore.events.changeWidthWindow(window.screen.width);
-    });
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   return (

@@ -4,6 +4,8 @@ import { Button, Typography, Checkbox } from "antd";
 
 const CardUserContainer = styled.div`
   width: 100%;
+  border: 2px solid black;
+  border-radius: 25px;
   background-color: lightgray;
   margin-top: 5px;
   &:first-child {
@@ -48,7 +50,7 @@ const OptionValue = styled.div`
   flex-grow: 1;
 `;
 
-export const CardUser = ({ user, onClick, onDelete, ...props }) => {
+export const CardUser = ({ user, onClick, onDelete }) => {
   const { t } = useTranslation();
   const { numeral, name, isArchive, role, phone, birthday } = user;
   return (
@@ -81,7 +83,7 @@ export const CardUser = ({ user, onClick, onDelete, ...props }) => {
         </RowContainer>
       </InfoContainer>
       <ButtonContainer>
-        <Button onClick={onDelete}>Удалить</Button>
+        <Button onClick={onDelete}>{t("delete")}</Button>
       </ButtonContainer>
     </CardUserContainer>
   );

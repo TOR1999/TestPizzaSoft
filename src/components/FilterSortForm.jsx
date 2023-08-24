@@ -1,4 +1,3 @@
-import { React, useEffect, useState } from "react";
 import { Checkbox, Select, Button } from "antd";
 import { useStore } from "effector-react";
 import { UsersStore } from "../store/Users/UsersStore";
@@ -7,6 +6,28 @@ import { useNavigate } from "react-router-dom";
 import { PageRoutes } from "../router/Constants";
 import { useTranslation } from "react-i18next";
 import { SystemStore } from "../store/System/SystemStore";
+import { styled } from "styled-components";
+import { device } from "../style/MainPageStyle";
+
+const FilterSortFormContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 10px;
+  justify-content: center;
+
+  @media ${device.tablet} {
+    width: 400px;
+  }
+`;
+
+const FilterIsArchive = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 export const FilterSortForm = () => {
   const { t } = useTranslation();
@@ -14,7 +35,6 @@ export const FilterSortForm = () => {
 
   const optionsStatus = useStore(UsersStore.store.$optionsStatus);
   const widthWindow = useStore(SystemStore.store.$widthWindow);
-  console.log(widthWindow);
 
   const onChangeIsArchive = (e) => {
     FilterStore.events.changeFilterIsArchive(e.target.checked);
@@ -24,6 +44,14 @@ export const FilterSortForm = () => {
     value === undefined
       ? FilterStore.events.changeFilterStatus("")
       : FilterStore.events.changeFilterStatus(value);
+  };
+
+  const onClickSortByName = () => {
+    FilterStore.events.toggleSortByName();
+  };
+
+  const onClickSortByBirthday = () => {
+    FilterStore.events.toggleSortByBirthday();
   };
 
   const onClickDropFilterIsArchive = () => {
@@ -42,31 +70,30 @@ export const FilterSortForm = () => {
   const mobileFlag = widthWindow < 1024;
 
   return (
-    <>
-      <>
-        <h1>Должность</h1>
-        <Select
-          allowClear
-          onChange={onChangeSelectStatus}
-          defaultValue={t("selectRole")}
-          style={{
-            width: 200,
-          }}
-          options={selectOptions}
-        />
-        <Checkbox onChange={onChangeIsArchive}>В архиве</Checkbox>
-      </>
+    <FilterSortFormContainer>
+      <Select
+        placeholder={t("selectRole")}
+        allowClear
+        onChange={onChangeSelectStatus}
+        options={selectOptions}
+      />
+      <FilterIsArchive>
+        <Checkbox onChange={onChangeIsArchive}>{t("inTheArchive")}</Checkbox>
+        <Button onClick={onClickDropFilterIsArchive}>
+          Сбросить фильтр по архиву
+        </Button>
+      </FilterIsArchive>
+
       {mobileFlag && (
         <>
-          <Button>Сортировать по дате рождения</Button>
-          <Button>Сортировать по имени</Button>
+          <Button onClick={onClickSortByBirthday}>
+            Сортировать по дате рождения
+          </Button>
+          <Button onClick={onClickSortByName}>Сортировать по имени</Button>
         </>
       )}
 
-      <Button onClick={onClickDropFilterIsArchive}>
-        Сбросить фильтр по архиву
-      </Button>
       <Button onClick={onClickNewUser}>Добавить нового пользователя</Button>
-    </>
+    </FilterSortFormContainer>
   );
 };

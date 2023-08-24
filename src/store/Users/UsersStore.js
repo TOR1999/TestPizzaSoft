@@ -1,5 +1,4 @@
 import { PageRoutes } from "../../router/Constants";
-import { SystemStore } from "../System/SystemStore";
 import dataJSON from "../data/employees.json";
 import { createEvent, createStore } from "effector";
 import connectLocalStorage from "effector-localstorage";

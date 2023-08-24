@@ -1,3 +1,4 @@
+/* eslint-disable i18n/no-russian-character */
 export const ru = {
   waiter: "Официант",
   driver: "Водитель",
@@ -6,7 +7,10 @@ export const ru = {
   numeral: "№",
   name: "Имя",
   isArchive: "Статус (в архиве)",
+  inTheArchive: "В архиве",
   role: "Должность",
   phone: "Телефон",
   birthday: "Дата рождения",
+  delete: "Удалить",
+  sortByName: "Сортировать по имени",
 };
