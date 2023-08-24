@@ -1,9 +1,15 @@
-import React from "react";
+import { React, useEffect, useState } from "react";
+import { MainContainer, TableContainer } from "../MainPage/Style";
+import { FilterSortForm } from "../../components/FilterSortForm";
+import { TableUsers } from "../../components/TableUsers";
 
 export const MainPage = () => {
   return (
-    <>
-      <h1>Hello! I MainPage</h1>
-    </>
+    <MainContainer>
+      <FilterSortForm />
+      <TableContainer>
+        <TableUsers />
+      </TableContainer>
+    </MainContainer>
   );
 };
