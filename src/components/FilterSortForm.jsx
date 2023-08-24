@@ -5,10 +5,16 @@ import { UsersStore } from "../store/Users/UsersStore";
 import { FilterStore } from "../store/Filter/FilterStore";
 import { useNavigate } from "react-router-dom";
 import { PageRoutes } from "../router/Constants";
+import { useTranslation } from "react-i18next";
+import { SystemStore } from "../store/System/SystemStore";
 
 export const FilterSortForm = () => {
-  const optionsStatus = useStore(UsersStore.store.$optionsStatus);
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const optionsStatus = useStore(UsersStore.store.$optionsStatus);
+  const widthWindow = useStore(SystemStore.store.$widthWindow);
+  console.log(widthWindow);
 
   const onChangeIsArchive = (e) => {
     FilterStore.events.changeFilterIsArchive(e.target.checked);
@@ -27,6 +33,14 @@ export const FilterSortForm = () => {
   const onClickNewUser = () => {
     navigate(PageRoutes.NEW_USER_PAGE);
   };
+
+  const selectOptions = optionsStatus.map((role) => ({
+    value: role,
+    label: t(role),
+  }));
+
+  const mobileFlag = widthWindow < 1024;
+
   return (
     <>
       <>
@@ -34,16 +48,21 @@ export const FilterSortForm = () => {
         <Select
           allowClear
           onChange={onChangeSelectStatus}
-          defaultValue="Выберите должность"
+          defaultValue={t("selectRole")}
           style={{
             width: 200,
           }}
-          options={optionsStatus}
+          options={selectOptions}
         />
         <Checkbox onChange={onChangeIsArchive}>В архиве</Checkbox>
       </>
-      <Button>Сортировать по дате рождения</Button>
-      <Button>Сортировать по имени</Button>
+      {mobileFlag && (
+        <>
+          <Button>Сортировать по дате рождения</Button>
+          <Button>Сортировать по имени</Button>
+        </>
+      )}
+
       <Button onClick={onClickDropFilterIsArchive}>
         Сбросить фильтр по архиву
       </Button>

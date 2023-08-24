@@ -7,15 +7,13 @@ import { SystemStore } from "../store/System/SystemStore";
 import { EditingPage } from "../pages/EditingPage/EditingPage";
 
 export const Router = () => {
-  useEffect(() => UsersStore.events.initUsers(), []);
-  // useEffect(
-  //   () => SystemStore.events.changeWidthWindow(window.screen.width),
-  //   []
-  // );
-  // window.addEventListener("resize", (e) => {
-  //   console.log(e.currentTarget.screen.width);
-  // });
-  // console.log(`window ${window.screen.width}`);
+  useEffect(() => {
+    window.addEventListener("resize", (e) => {
+      console.log(e.currentTarget.screen.width);
+      SystemStore.events.changeWidthWindow(window.screen.width);
+    });
+  }, []);
+
   return (
     <Routes>
       <Route

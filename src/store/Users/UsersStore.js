@@ -2,25 +2,30 @@ import { PageRoutes } from "../../router/Constants";
 import { SystemStore } from "../System/SystemStore";
 import dataJSON from "../data/employees.json";
 import { createEvent, createStore } from "effector";
+import connectLocalStorage from "effector-localstorage";
 
 export const dataUsers = [];
 
 const events = {
-  initUsers: createEvent(),
   initOptions: createEvent(),
+  addUser: createEvent(),
+  updateUser: createEvent(),
   changeUsers: createEvent(),
   deleteUser: createEvent(),
 };
 
-const $users = createStore([])
-  .on(events.initUsers, () => dataJSON)
+const $users = createStore(dataJSON)
   .on(events.deleteUser, (prevState, payloadId) => {
     return prevState.filter((user) => user.id !== payloadId);
   })
   .on(events.changeUsers, (prevState, payload) => {
-    console.log("payload", payload);
     return payload;
   });
+
+connectLocalStorage({
+  key: "users",
+  store: $users,
+});
 
 const $usersTableData = $users.map((state) => {
   let num = 0;
@@ -40,21 +45,9 @@ const $usersTableData = $users.map((state) => {
   return tableData;
 });
 
-const $optionsStatus = createStore([]).on(events.initOptions, () => {
-  let options = [];
-
-  $users.map((state) => {
-    let setOptions = new Set();
-
-    state.map((user) => {
-      setOptions.add(user.role);
-    });
-
-    for (let value of setOptions) {
-      options.push({ value: value, label: value });
-    }
-  });
-  return options;
+const $optionsStatus = $users.map((state) => {
+  const roles = state.map(({ role }) => role);
+  return [...new Set(roles)];
 });
 
 const store = { $users, $usersTableData, $optionsStatus };

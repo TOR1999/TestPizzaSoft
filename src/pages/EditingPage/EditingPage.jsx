@@ -1,22 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import MaskedInput from "antd-mask-input";
-import { Checkbox, Input, Select, Button } from "antd";
-import IMask from "imask";
+import { Checkbox, Input, Select, Button, Typography } from "antd";
 import { useStore } from "effector-react";
 import { UsersStore } from "../../store/Users/UsersStore";
 import { PageRoutes } from "../../router/Constants";
+import { MaskInput } from "../../components/MaskInput";
+import moment from "moment";
+import { useTranslation } from "react-i18next";
+
+const validateData = {
+  birthday: (value) => {
+    if (!value) return "Поле не может быть пустым";
+    if (value.includes("_")) return "Неообходимо заполнить дату до конца";
+    if (!moment(value, "DD.MM.YYYY").isValid()) return "Некорректная дата";
+    if (moment(value, "DD.MM.YYYY").isAfter(moment.now()))
+      return "Дата не может быть из будущего";
+
+    return null;
+  },
+};
 
 export const EditingPage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
-  useEffect(() => UsersStore.events.initOptions(), []);
+  const optionsStatus = useStore(UsersStore.store.$optionsStatus);
+  const dataUsers = useStore(UsersStore.store.$users);
+
+  const [nameUser, setNameUser] = useState("");
+  const [statusUser, setStatusUser] = useState(false);
+  const [roleUser, setRoleUser] = useState("");
+  const [phoneUser, setPhoneUser] = useState("");
+  const [birthdayUser, setBirthdayUser] = useState("");
+  const [birthdayUserError, setBirthdayUserError] = useState(null);
+
   useEffect(() => {
     if (!userId) return;
 
-    const currUser =
-      dataUsers.find((user) => Number(user.id) == Number(userId)) || {};
+    const currUser = dataUsers.find((user) => user.id === Number(userId)) || {};
 
     if (!currUser.id) return;
 
@@ -25,16 +47,7 @@ export const EditingPage = () => {
     setRoleUser(currUser.role);
     setPhoneUser(currUser.phone);
     setBirthdayUser(currUser.birthday);
-  }, [userId]);
-
-  const optionsStatus = useStore(UsersStore.store.$optionsStatus);
-  const dataUsers = useStore(UsersStore.store.$users);
-
-  const [nameUser, setNameUser] = useState("");
-  const [statusUser, setStatusUser] = useState("");
-  const [roleUser, setRoleUser] = useState("");
-  const [phoneUser, setPhoneUser] = useState("");
-  const [birthdayUser, setBirthdayUser] = useState("");
+  }, [userId, dataUsers]);
 
   const onChangeNameUser = (e) => {
     setNameUser(e.target.value);
@@ -46,6 +59,7 @@ export const EditingPage = () => {
 
   const onChangeBirthdayUser = (e) => {
     setBirthdayUser(e.target.value);
+    setBirthdayUserError(validateData.birthday(e.target.value));
   };
 
   const onChangeRoleUser = (value) => {
@@ -82,7 +96,7 @@ export const EditingPage = () => {
     return [
       ...dataUsers,
       {
-        id: newId,
+        id: newId + 1,
         birthday: birthdayUser,
         isArchive: statusUser,
         name: nameUser,
@@ -101,7 +115,14 @@ export const EditingPage = () => {
     navigate(PageRoutes.MAIN_PAGE);
   };
 
-  // console.log(dataUsers);
+  const clickBackToMainPage = () => {
+    navigate(PageRoutes.MAIN_PAGE);
+  };
+
+  const selectOptions = optionsStatus.map((role) => ({
+    value: role,
+    label: t(role),
+  }));
 
   return (
     <>
@@ -112,17 +133,23 @@ export const EditingPage = () => {
         onChange={onChangeNameUser}
       ></Input>
       Телефон:
-      <MaskedInput
-        mask="+{7} (000) 000-0000"
+      <MaskInput
+        placeholder="Введите номер телефона"
+        mask="+7 (999) 999-9999"
         value={phoneUser}
         onChange={onChangePhoneUser}
       />
       Дата рождения:
-      <MaskedInput
+      <MaskInput
+        placeholder="Введите дату рождения"
         value={birthdayUser}
-        mask={Date}
+        mask={"99.99.9999"}
+        maskChar={"_"}
         onChange={onChangeBirthdayUser}
       />
+      {birthdayUserError && (
+        <Typography.Text type="danger">{birthdayUserError}</Typography.Text>
+      )}
       Должность:
       <Select
         value={roleUser}
@@ -131,13 +158,16 @@ export const EditingPage = () => {
         style={{
           width: 200,
         }}
-        options={optionsStatus}
+        options={selectOptions}
       />
       Статус:
       <Checkbox checked={statusUser} onChange={onChangeStatusUser}>
         В архиве
       </Checkbox>
       <Button onClick={clickSaveDataUser}>Сохранить данные</Button>
+      <Button onClick={clickBackToMainPage}>
+        Вернуться на главную страницу
+      </Button>
     </>
   );
 };

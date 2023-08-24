@@ -1,42 +1,37 @@
 import styled from "styled-components";
 
-const size = {
-  mobile: "320px",
-  tablet: "768px",
-  laptop: "1024px",
-  desktop: "2560px",
+export const DeviceBreakPoints = {
+  mobile: 320,
+  tablet: 768,
+  laptop: 1024,
+  desktop: 2560,
 };
 
 export const device = {
-  mobile: `(min-width: ${size.mobile})`,
-  tablet: `(min-width: ${size.tablet})`,
-  laptop: `(min-width: ${size.laptop})`,
-  desktop: `(min-width: ${size.desktop})`,
+  mobile: `(min-width: ${DeviceBreakPoints.mobile}px)`,
+  tablet: `(min-width: ${DeviceBreakPoints.tablet}px)`,
+  laptop: `(min-width: ${DeviceBreakPoints.laptop}px)`,
+  desktop: `(min-width: ${DeviceBreakPoints.desktop}px)`,
 };
 
 export const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: red;
 
   font-size: 10px;
   width: 100%;
 
   @media ${device.mobile} {
-    background-color: green;
   }
 
   @media ${device.tablet} {
-    background-color: orange;
   }
 
   @media ${device.laptop} {
-    background-color: blue;
   }
 
   @media ${device.desktop} {
-    background-color: yellow;
   }
 `;
 
@@ -44,7 +39,8 @@ export const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 2px;
+  width: 100%;
+
   margin: 10px;
 
   @media ${device.mobile} {

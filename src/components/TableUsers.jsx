@@ -1,58 +1,27 @@
-import { React, useEffect, useState } from "react";
 import { Table, Checkbox, Popconfirm } from "antd";
-import { useStore } from "effector-react";
-import { UsersStore } from "../store/Users/UsersStore";
-import { useNavigate } from "react-router-dom";
-import { SystemStore } from "../store/System/SystemStore";
-import { FilterStore } from "../store/Filter/FilterStore";
 import moment from "moment";
-import { PageRoutes, RedirectToRoutes } from "../router/Constants";
+import { useTranslation } from "react-i18next";
 
-export const TableUsers = () => {
-  useEffect(() => UsersStore.events.initOptions(), []);
-  const navigate = useNavigate();
-  const dataUsers = useStore(UsersStore.store.$users);
-  const data = useStore(UsersStore.store.$usersTableData);
-  const filterStatus = useStore(FilterStore.store.$filterStatus);
-  const filterIsArchive = useStore(FilterStore.store.$filterIsArchive);
+export const TableUsers = ({ handleChange, handleDelete, dataUsers }) => {
+  const { t } = useTranslation();
 
-  const filteredByStatusData = filterStatus
-    ? data?.filter((user) => {
-        return user.role === filterStatus;
-      })
-    : data;
-
-  const filteredByIsArchiveData =
-    filterIsArchive === null
-      ? filteredByStatusData
-      : filteredByStatusData.filter(
-          (user) => user.isArchive === filterIsArchive
-        );
-
-  const handleDelete = (key) => {
-    UsersStore.events.deleteUser(key.key);
-  };
   const columns = [
     {
-      title: "№",
+      title: t("numeral"),
       dataIndex: "numeral",
     },
     {
-      title: "Имя",
+      title: t("name"),
       dataIndex: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
 
       render: (text) => <a>{text}</a>,
-      onCell: (record, rowIndex) => {
-        return {
-          onClick: (ev) => {
-            navigate(RedirectToRoutes.EDIT_PAGE(record.key));
-          },
-        };
-      },
+      onCell: (record) => ({
+        onClick: handleChange(record),
+      }),
     },
     {
-      title: "Статус (в архиве)",
+      title: t("isArchive"),
       dataIndex: "isArchive",
       render: (check) => (
         <Checkbox checked={check} disabled>
@@ -61,15 +30,16 @@ export const TableUsers = () => {
       ),
     },
     {
-      title: "Должность",
+      title: t("role"),
       dataIndex: "role",
+      render: (role) => t(role),
     },
     {
-      title: "Телефон",
+      title: t("phone"),
       dataIndex: "phone",
     },
     {
-      title: "Дата рождения",
+      title: t("birthday"),
       dataIndex: "birthday",
       sorter: (a, b) => {
         return (
@@ -81,18 +51,13 @@ export const TableUsers = () => {
     {
       title: "",
       dataIndex: "operation",
-      render: (_, record) =>
-        data.length >= 1 ? (
-          <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record)}>
-            <a>Удалить</a>
-          </Popconfirm>
-        ) : null,
+      render: (_, record) => (
+        <Popconfirm title="Удалить?" onConfirm={handleDelete(record)}>
+          <a>Удалить</a>
+        </Popconfirm>
+      ),
     },
   ];
 
-  console.log("dataUsers", dataUsers);
-
-  return (
-    <Table bordered columns={columns} dataSource={filteredByIsArchiveData} />
-  );
+  return <Table bordered columns={columns} dataSource={dataUsers} />;
 };

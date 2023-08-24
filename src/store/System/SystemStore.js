@@ -1,20 +1,19 @@
 import { createEvent, createStore } from "effector";
+import { DeviceBreakPoints } from "../../style/MainPageStyle";
 
 const events = {
   changeWidthWindow: createEvent(),
-  changeMaxIdUser: createEvent(),
 };
 
-const $widthWindow = createStore(0).on(
+const $widthWindow = createStore(window.screen.width).on(
   events.changeWidthWindow,
   (prevState, payLoad) => payLoad
 );
 
-const $maxIdUser = createStore(0).on(
-  events.changeMaxIdUser,
-  (prevState, payLoad) => payLoad
+const $flagIsTablet = $widthWindow.map(
+  (state) => state < DeviceBreakPoints.laptop
 );
 
-const store = { $widthWindow, $maxIdUser };
+const store = { $widthWindow, $flagIsTablet };
 
 export const SystemStore = { events, store };
