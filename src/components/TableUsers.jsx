@@ -25,7 +25,7 @@ export const TableUsers = ({ handleChange, handleDelete, dataUsers }) => {
       dataIndex: "isArchive",
       render: (check) => (
         <Checkbox checked={check} disabled>
-          В архиве
+          {t("inTheArchive")}
         </Checkbox>
       ),
     },
@@ -52,8 +52,8 @@ export const TableUsers = ({ handleChange, handleDelete, dataUsers }) => {
       title: "",
       dataIndex: "operation",
       render: (_, record) => (
-        <Popconfirm title="Удалить?" onConfirm={handleDelete(record)}>
-          <a>Удалить</a>
+        <Popconfirm title={`${t("delete")}?`} onConfirm={handleDelete(record)}>
+          <a>{t("delete")}</a>
         </Popconfirm>
       ),
     },

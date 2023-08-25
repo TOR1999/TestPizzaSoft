@@ -12,8 +12,18 @@ import { device } from "../../style/MainPageStyle";
 
 const EditingPageContainer = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const EditingPanelContainer = styled.div`
+  width: 100%;
   padding: 5px;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   @media ${device.tablet} {
     width: 400px;
@@ -38,30 +48,6 @@ const ErrorContainer = styled.div`
   width: 100%;
   height: 18px;
 `;
-
-const validateData = {
-  name: (value) => {
-    if (!value) return "Поле не может быть пустым";
-
-    return null;
-  },
-  phone: (value) => {
-    if (!value) return "Поле не может быть пустым";
-    if (value.includes("_"))
-      return "Неообходимо заполнить номер телефона до конца";
-
-    return null;
-  },
-  birthday: (value) => {
-    if (!value) return "Поле не может быть пустым";
-    if (value.includes("_")) return "Неообходимо заполнить дату до конца";
-    if (!moment(value, "DD.MM.YYYY").isValid()) return "Некорректная дата";
-    if (moment(value, "DD.MM.YYYY").isAfter(moment.now()))
-      return "Дата не может быть из будущего";
-
-    return null;
-  },
-};
 
 export const EditingPage = () => {
   const { userId } = useParams();
@@ -94,6 +80,29 @@ export const EditingPage = () => {
     setBirthdayUser(currUser.birthday);
   }, [userId, dataUsers]);
 
+  const validateData = {
+    name: (value) => {
+      if (!value) return t("fieldCannotIsEmpty");
+
+      return null;
+    },
+    phone: (value) => {
+      if (!value) return t("fieldCannotIsEmpty");
+      if (value.includes("_")) return t("needFullPhone");
+
+      return null;
+    },
+    birthday: (value) => {
+      if (!value) return t("fieldCannotIsEmpty");
+      if (value.includes("_")) return t("needFullBirthday");
+      if (!moment(value, "DD.MM.YYYY").isValid()) return t("incorrectBirthday");
+      if (moment(value, "DD.MM.YYYY").isAfter(moment.now()))
+        return t("incorrectBirthdayFeatures");
+
+      return null;
+    },
+  };
+
   const onChangeNameUser = (e) => {
     setNameUser(e.target.value);
     setNameUserError(validateData.name(e.target.value));
@@ -117,45 +126,23 @@ export const EditingPage = () => {
     setStatusUser(e.target.checked);
   };
 
-  const editingUser = () => {
-    return [
-      ...dataUsers.map((currUser) => {
-        return Number(currUser.id) == Number(userId)
-          ? {
-              id: userId,
-              birthday: birthdayUser,
-              isArchive: statusUser,
-              name: nameUser,
-              phone: phoneUser,
-              role: roleUser,
-            }
-          : currUser;
-      }),
-    ];
-  };
-
-  const addUser = () => {
-    const newId = dataUsers.reduce((acc, { id }) => {
-      return acc > id ? acc : id;
-    }, 1);
-
-    return [
-      ...dataUsers,
-      {
-        id: newId + 1,
-        birthday: birthdayUser,
-        isArchive: statusUser,
-        name: nameUser,
-        phone: phoneUser,
-        role: roleUser,
-      },
-    ];
-  };
-
   const clickSaveDataUser = () => {
     userId
-      ? UsersStore.events.changeUsers(editingUser())
-      : UsersStore.events.changeUsers(addUser());
+      ? UsersStore.events.updateUser({
+          id: userId,
+          birthday: birthdayUser,
+          isArchive: statusUser,
+          name: nameUser,
+          phone: phoneUser,
+          role: roleUser,
+        })
+      : UsersStore.events.addUser({
+          birthday: birthdayUser,
+          isArchive: statusUser,
+          name: nameUser,
+          phone: phoneUser,
+          role: roleUser,
+        });
 
     navigate(PageRoutes.MAIN_PAGE);
   };
@@ -171,79 +158,81 @@ export const EditingPage = () => {
 
   return (
     <EditingPageContainer>
-      <FieldContainer>
-        Имя сотрудника:
-        <Input
-          placeholder="Введите имя сотрудника"
-          value={nameUser}
-          onChange={onChangeNameUser}
-        />
-        <ErrorContainer>
-          {nameUserError && (
-            <Typography.Text type="danger">{nameUserError}</Typography.Text>
-          )}
-        </ErrorContainer>
-      </FieldContainer>
-      <FieldContainer>
-        Телефон:
-        <MaskInput
-          placeholder="Введите номер телефона"
-          mask="+7 (999) 999-9999"
-          value={phoneUser}
-          onChange={onChangePhoneUser}
-        />
-        <ErrorContainer>
-          {phoneUserError && (
-            <Typography.Text type="danger">{phoneUserError}</Typography.Text>
-          )}
-        </ErrorContainer>
-      </FieldContainer>
-      <FieldContainer>
-        Дата рождения:
-        <MaskInput
-          placeholder="Введите дату рождения"
-          value={birthdayUser}
-          mask={"99.99.9999"}
-          maskChar={"_"}
-          onChange={onChangeBirthdayUser}
-        />
-        <ErrorContainer>
-          {birthdayUserError && (
-            <Typography.Text type="danger">{birthdayUserError}</Typography.Text>
-          )}
-        </ErrorContainer>
-      </FieldContainer>
-      <FieldContainer>
-        Должность:
-        <Select
-          placeholder="Выберите должность"
-          value={roleUser}
-          onChange={onChangeRoleUser}
-          options={selectOptions}
-        />
-      </FieldContainer>
-      <FieldContainer>
-        Статус:
-        <Checkbox checked={statusUser} onChange={onChangeStatusUser}>
-          В архиве
-        </Checkbox>
-      </FieldContainer>
-      <ButtonsContainer>
-        <Button
-          disabled={
-            nameUserError ||
-            phoneUserError ||
-            birthdayUserError ||
-            roleUser === null
-          }
-          onClick={clickSaveDataUser}
-        >
-          Сохранить данные
-        </Button>
-        <Button onClick={clickBackToMainPage}>
-          Вернуться на главную страницу
-        </Button>
-      </ButtonsContainer>
+      <EditingPanelContainer>
+        <FieldContainer>
+          {t("name")}
+          <Input
+            placeholder={t("enterName")}
+            value={nameUser}
+            onChange={onChangeNameUser}
+          />
+          <ErrorContainer>
+            {nameUserError && (
+              <Typography.Text type="danger">{nameUserError}</Typography.Text>
+            )}
+          </ErrorContainer>
+        </FieldContainer>
+        <FieldContainer>
+          {t("phone")}
+          <MaskInput
+            placeholder={t("enterPhone")}
+            mask="+7 (999) 999-9999"
+            value={phoneUser}
+            onChange={onChangePhoneUser}
+          />
+          <ErrorContainer>
+            {phoneUserError && (
+              <Typography.Text type="danger">{phoneUserError}</Typography.Text>
+            )}
+          </ErrorContainer>
+        </FieldContainer>
+        <FieldContainer>
+          {t("birthday")}
+          <MaskInput
+            placeholder={t("enterBirthday")}
+            value={birthdayUser}
+            mask={"99.99.9999"}
+            maskChar={"_"}
+            onChange={onChangeBirthdayUser}
+          />
+          <ErrorContainer>
+            {birthdayUserError && (
+              <Typography.Text type="danger">
+                {birthdayUserError}
+              </Typography.Text>
+            )}
+          </ErrorContainer>
+        </FieldContainer>
+        <FieldContainer>
+          {t("role")}
+          <Select
+            placeholder={t("selectRole")}
+            value={roleUser}
+            onChange={onChangeRoleUser}
+            options={selectOptions}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          {t("status")}
+          <Checkbox checked={statusUser} onChange={onChangeStatusUser}>
+            {t("inTheArchive")}
+          </Checkbox>
+        </FieldContainer>
+        <ButtonsContainer>
+          <Button
+            disabled={
+              nameUserError ||
+              phoneUserError ||
+              birthdayUserError ||
+              roleUser === null
+            }
+            onClick={clickSaveDataUser}
+          >
+            {t("saveData")}
+          </Button>
+          <Button onClick={clickBackToMainPage}>{t("backToMainPage")}</Button>
+        </ButtonsContainer>
+      </EditingPanelContainer>
     </EditingPageContainer>
   );
 };

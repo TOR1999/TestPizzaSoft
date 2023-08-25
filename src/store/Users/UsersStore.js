@@ -1,4 +1,3 @@
-import { PageRoutes } from "../../router/Constants";
 import dataJSON from "../data/employees.json";
 import { createEvent, createStore } from "effector";
 import connectLocalStorage from "effector-localstorage";
@@ -9,7 +8,6 @@ const events = {
   initOptions: createEvent(),
   addUser: createEvent(),
   updateUser: createEvent(),
-  changeUsers: createEvent(),
   deleteUser: createEvent(),
 };
 
@@ -17,8 +15,38 @@ const $users = createStore(dataJSON)
   .on(events.deleteUser, (prevState, payloadId) => {
     return prevState.filter((user) => user.id !== payloadId);
   })
-  .on(events.changeUsers, (prevState, payload) => {
-    return payload;
+  .on(events.updateUser, (prevState, payload) => {
+    return [
+      ...prevState.map((currUser) => {
+        return Number(currUser.id) == Number(payload.id)
+          ? {
+              id: payload.id,
+              birthday: payload.birthday,
+              isArchive: payload.isArchive,
+              name: payload.name,
+              phone: payload.phone,
+              role: payload.role,
+            }
+          : currUser;
+      }),
+    ];
+  })
+  .on(events.addUser, (prevState, payload) => {
+    const newId = prevState.reduce((acc, { id }) => {
+      return acc > id ? acc : id;
+    }, 1);
+
+    return [
+      ...prevState,
+      {
+        id: newId + 1,
+        birthday: payload.birthday,
+        isArchive: payload.isArchive,
+        name: payload.name,
+        phone: payload.phone,
+        role: payload.role,
+      },
+    ];
   });
 
 connectLocalStorage({
@@ -38,7 +66,6 @@ const $usersTableData = $users.map((state) => {
       role: currentuser.role,
       phone: currentuser.phone,
       birthday: currentuser.birthday,
-      link: PageRoutes.EDIT_PAGE,
     };
   });
   return tableData;

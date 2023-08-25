@@ -21,18 +21,6 @@ export const MainContainer = styled.div`
 
   font-size: 10px;
   width: 100%;
-
-  @media ${device.mobile} {
-  }
-
-  @media ${device.tablet} {
-  }
-
-  @media ${device.laptop} {
-  }
-
-  @media ${device.desktop} {
-  }
 `;
 
 export const TableContainer = styled.div`
@@ -40,18 +28,4 @@ export const TableContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-
-  margin: 10px;
-
-  @media ${device.mobile} {
-  }
-
-  @media ${device.tablet} {
-  }
-
-  @media ${device.laptop} {
-  }
-
-  @media ${device.desktop} {
-  }
 `;

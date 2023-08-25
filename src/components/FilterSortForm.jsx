@@ -80,20 +80,18 @@ export const FilterSortForm = () => {
       <FilterIsArchive>
         <Checkbox onChange={onChangeIsArchive}>{t("inTheArchive")}</Checkbox>
         <Button onClick={onClickDropFilterIsArchive}>
-          Сбросить фильтр по архиву
+          {t("resetTheArchiveFilter")}
         </Button>
       </FilterIsArchive>
 
       {mobileFlag && (
         <>
-          <Button onClick={onClickSortByBirthday}>
-            Сортировать по дате рождения
-          </Button>
-          <Button onClick={onClickSortByName}>Сортировать по имени</Button>
+          <Button onClick={onClickSortByBirthday}>{t("sortByBirthday")}</Button>
+          <Button onClick={onClickSortByName}>{t("sortByName")}</Button>
         </>
       )}
 
-      <Button onClick={onClickNewUser}>Добавить нового пользователя</Button>
+      <Button onClick={onClickNewUser}>{t("addUser")}</Button>
     </FilterSortFormContainer>
   );
 };
